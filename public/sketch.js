@@ -43,7 +43,9 @@ function connect() {
 }
 
 function draw() {
-  smooth = lerp(smooth, light1, 0.1);   // ease out the jitter
+  smooth1 = lerp(smooth, light1, 0.1);   // ease out the jitter
+  smooth2 = lerp(smooth, light2, 0.1);
+  smooth3 = lerp(smooth, light3, 0.1);
 
   const t = constrain(map(smooth, lightMin, lightMax, 0, 1), 0, 1);
 
@@ -57,9 +59,9 @@ function draw() {
   // text
   fill(t > 0.5 ? 20 : 220);
   text(ws.readyState === 1 ? "connected" : "connecting...", 10, 20);
-  text("light: " + int(smooth), 10, 40);
-  text("press 1 / 2 / 3 = LED, 0 = off, space = cycle", 10, 60);
-  text("LED: " + ledState, 10, 80);
+  text("photoresistor 1: " + int(smooth1), 10, 40);
+  text("photoresistor 2: " + int(smooth2), 10, 60);
+  text("photoresistor 3: " + int(smooth3), 10, 80);
 }
 
 function send(msg) {
