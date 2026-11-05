@@ -120,11 +120,14 @@ void testdrawlightsource() {
     display.setTextSize(1);
     display.setTextColor(SSD1306_WHITE);
     display.setCursor(0, 0);
-    display.println(F("Photoresistor 1: " + String(PHORE_0)));
+    display.print(F("Photoresistor 1: "));
+    display.println(PHORE_0);
     display.setCursor(0, 10);
-    display.println(F("Photoresistor 2: " + String(PHORE_1)));
+    display.print(F("Photoresistor 2: "));
+    display.println(PHORE_1);
     display.setCursor(0, 20);
-    display.println(F("Photoresistor 3: " + String(PHORE_2)));
+    display.print(F("Photoresistor 3: "));
+    display.println(PHORE_2);
     display.display();
     delay(2000);
 }
@@ -139,7 +142,7 @@ void onWsEvent(WStype_t type, uint8_t* payload, size_t length) {
       break;
     case WStype_TEXT:
       // payload is not null-terminated, so look at the first byte only
-      if (length > 5 && if (memcmp(payload, "PHO", 3) == 0)) {
+      if (length > 5 && memcmp(payload, "PHO", 3) == 0) {
 
         if (payload[3] < '0' || payload[3] > '2') return;
         int channel = payload[3] - '0';
