@@ -40,10 +40,11 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 // ---- settings -------------------------------------------------------------
 const char* WIFI_SSID = "gd-network-2g";
 const char* WIFI_PASS = "HeheheHahaha";
-const char* SERVER_HOST = "https://skywriting-iii.onrender.com/";   // laptop running server.js
+const char* SERVER_HOST = "skywriting-iii.onrender.com";
 const int   SERVER_PORT = 443;
 const bool USE_SSL = true;
 WebSocketsClient ws;
+unsigned long lastDisplayUpdate = 0;
 
 #define NUMFLAKES     10 // Number of snowflakes in the animation example
 
@@ -53,6 +54,7 @@ WebSocketsClient ws;
 int PHORE_0 = 0;
 int PHORE_1 = 0;
 int PHORE_2 = 0;
+bool hasSensorData = false;
 
 static const unsigned char PROGMEM logo_bmp[] =
 { 0b00000000, 0b11000000,
@@ -112,7 +114,19 @@ void setup() {
   display.invertDisplay(false);
   delay(1000);
 
-//   testanimate(logo_bmp, LOGO_WIDTH, LOGO_HEIGHT); // Animate bitmaps
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(WIFI_SSID, WIFI_PASS);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(300);
+  }
+
+  if (USE_SSL) {
+    ws.beginSSL(SERVER_HOST, SERVER_PORT, "/");
+  } else {
+    ws.begin(SERVER_HOST, SERVER_PORT, "/");
+  }
+  ws.onEvent(onWsEvent);
+  ws.setReconnectInterval(2000);
 }
 
 void testdrawlightsource() {
@@ -142,7 +156,7 @@ void onWsEvent(WStype_t type, uint8_t* payload, size_t length) {
       break;
     case WStype_TEXT:
       // payload is not null-terminated, so look at the first byte only
-      if (length > 5 && memcmp(payload, "PHO", 3) == 0) {
+      if (length >= 5 && memcmp(payload, "PHO", 3) == 0) {
 
         if (payload[3] < '0' || payload[3] > '2') return;
         int channel = payload[3] - '0';
@@ -161,6 +175,7 @@ void onWsEvent(WStype_t type, uint8_t* payload, size_t length) {
             case 1: PHORE_1 = value; break;
             case 2: PHORE_2 = value; break;
         }
+        hasSensorData = true;
       }
       break;
     default:
@@ -169,6 +184,32 @@ void onWsEvent(WStype_t type, uint8_t* payload, size_t length) {
 }
 
 void loop() {
+  ws.loop();
+
+  if (millis() - lastDisplayUpdate >= 200) {
+    lastDisplayUpdate = millis();
+    display.clearDisplay();
+    display.setTextSize(1);
+    display.setTextColor(SSD1306_WHITE);
+    display.setCursor(0, 0);
+    if (!ws.isConnected()) {
+      display.println(F("Relay offline"));
+    } else if (!hasSensorData) {
+      display.println(F("Waiting for sensor"));
+    } else {
+      display.println(F("Live sensor readings"));
+    }
+    display.setCursor(0, 16);
+    display.print(F("P1: "));
+    display.println(PHORE_0);
+    display.setCursor(0, 32);
+    display.print(F("P2: "));
+    display.println(PHORE_1);
+    display.setCursor(0, 48);
+    display.print(F("P3: "));
+    display.println(PHORE_2);
+    display.display();
+  }
 }
 
 void testdrawline() {

@@ -15,7 +15,7 @@
 const char* WIFI_SSID = "gd-network-2g";
 const char* WIFI_PASS = "HeheheHahaha";
 
-const char* SERVER_HOST = "https://skywriting-iii.onrender.com/";   // laptop running server.js
+const char* SERVER_HOST = "skywriting-iii.onrender.com";
 const int   SERVER_PORT = 443;
 const bool USE_SSL = true;
 
@@ -114,7 +114,7 @@ void loop() {
   // }
 
   // ---- photoresistor ----
-  if (ws.isConnected() && millis() - lastSend >= SEND_INTERVAL_MS) {
+  if (millis() - lastSend >= SEND_INTERVAL_MS) {
     lastSend = millis();
 
     int light[3] = {
@@ -123,14 +123,16 @@ void loop() {
       analogRead(PHORE3)
     };
 
-    char line[16];
-    snprintf(line, sizeof(line), "PHO0%d", light[0]);
-    ws.sendTXT(line);
-    snprintf(line, sizeof(line), "PHO1%d", light[1]);
-    ws.sendTXT(line);
-    snprintf(line, sizeof(line), "PHO2%d", light[2]);
-    ws.sendTXT(line);
-
     Serial.printf("PHO0=%d PHO1=%d PHO2=%d\n", light[0], light[1], light[2]);
+
+    if (ws.isConnected()) {
+      char line[16];
+      snprintf(line, sizeof(line), "PHO0%d", light[0]);
+      ws.sendTXT(line);
+      snprintf(line, sizeof(line), "PHO1%d", light[1]);
+      ws.sendTXT(line);
+      snprintf(line, sizeof(line), "PHO2%d", light[2]);
+      ws.sendTXT(line);
+    }
   }
 }

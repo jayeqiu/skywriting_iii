@@ -1,9 +1,10 @@
-const SERVER = "wss://h4p-websockets.onrender.com/";
+const SERVER = "wss://skywriting-iii.onrender.com/";
 
 let ws;
 let light1 = 0;          // raw reading, 0-4095
 let light2 = 0;          // raw reading, 0-4095
 let light3 = 0;          // raw reading, 0-4095
+let hasSensorData = false;
 let smooth1 = 0;         // smoothed value for drawing
 let smooth2 = 0;         // smoothed value for drawing
 let smooth3 = 0;         // smoothed value for drawing
@@ -25,17 +26,18 @@ function connect() {
   ws.onmessage = (event) => {
     const msg = String(event.data).trim();
 
-    // only accept sensor lines like "PHO0,2048"; ignore LED messages from others
-    if (msg.startsWith("PHO")) {
-      switch (msg[3]) {
-        case "0": light1 = Number(msg.slice(4)); break;
-        case "1": light2 = Number(msg.slice(4)); break;
-        case "2": light3 = Number(msg.slice(4)); break;
-      }
-      
-      send(msg);  // echo to other clients
-    }
+    const sensorMessage = /^PHO([0-2]),?(\d+)$/.exec(msg);
+    if (!sensorMessage) return;
 
+    const value = Number(sensorMessage[2]);
+    if (!Number.isFinite(value)) return;
+
+    switch (sensorMessage[1]) {
+      case "0": light1 = value; break;
+      case "1": light2 = value; break;
+      case "2": light3 = value; break;
+    }
+    hasSensorData = true;
   };
 
   ws.onclose = () => {
@@ -60,7 +62,8 @@ function draw() {
 
   // text
   fill(t > 0.5 ? 20 : 220);
-  text(ws.readyState === 1 ? "connected" : "connecting...", 10, 20);
+  const status = ws.readyState !== 1 ? "connecting..." : hasSensorData ? "receiving sensor data" : "connected; waiting for sensor";
+  text(status, 10, 20);
   text("photoresistor 1: " + int(smooth1), 10, 40);
   text("photoresistor 2: " + int(smooth2), 10, 60);
   text("photoresistor 3: " + int(smooth3), 10, 80);
