@@ -15,11 +15,11 @@
 const char* WIFI_SSID = "gd-network-2g";
 const char* WIFI_PASS = "HeheheHahaha";
 
-const char* SERVER_HOST = "h4p-websockets.onrender.com";   // laptop running server.js
+const char* SERVER_HOST = "https://skywriting-iii.onrender.com/";   // laptop running server.js
 const int   SERVER_PORT = 443;
 const bool USE_SSL = true;
 
-const int LED1 = D7;
+const int LED1 = D8;
 const int PHORE1 = A0;
 const int PHORE2 = A1;
 const int PHORE3 = A2;
@@ -83,7 +83,7 @@ void setup() {
     delay(300);
     Serial.print(".");
   }
-  digitalWrite(LED1, LOW);
+  digitalWrite(LED1, HIGH);
   Serial.print(" connected, ip ");
   Serial.println(WiFi.localIP());
 
@@ -124,13 +124,13 @@ void loop() {
     };
 
     char line[16];
-    snprintf(line, sizeof(line), "L1,%d", light[0]);
+    snprintf(line, sizeof(line), "PHO0%d", light[0]);
     ws.sendTXT(line);
-    snprintf(line, sizeof(line), "L2,%d", light[1]);
+    snprintf(line, sizeof(line), "PHO1%d", light[1]);
     ws.sendTXT(line);
-    snprintf(line, sizeof(line), "L3,%d", light[2]);
+    snprintf(line, sizeof(line), "PHO2%d", light[2]);
     ws.sendTXT(line);
 
-    Serial.printf("L1=%d L2=%d L3=%d\n", light[0], light[1], light[2]);
+    Serial.printf("PHO0=%d PHO1=%d PHO2=%d\n", light[0], light[1], light[2]);
   }
 }

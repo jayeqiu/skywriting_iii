@@ -23,17 +23,17 @@ function connect() {
   ws.onmessage = (event) => {
     const msg = String(event.data).trim();
 
-    // only accept sensor lines like "L1,2048"; ignore LED messages from others
-    if (msg.startsWith("L1,")) {
-      const v = Number(msg.slice(3));
-      if (!Number.isNaN(v)) light1 = v;
-    } else if (msg.startsWith("L2,")) {
-      const v = Number(msg.slice(3));
-      if (!Number.isNaN(v)) light2 = v;
-    } else if (msg.startsWith("L3,")) {
-      const v = Number(msg.slice(3));
-      if (!Number.isNaN(v)) light3 = v;
+    // only accept sensor lines like "PHO0,2048"; ignore LED messages from others
+    if (msg.startsWith("PHO")) {
+      switch (msg[3]) {
+        case "0": light1 = Number(msg.slice(4)); break;
+        case "1": light2 = Number(msg.slice(4)); break;
+        case "2": light3 = Number(msg.slice(4)); break;
+      }
+      
+      send(msg);  // echo to other clients
     }
+
   };
 
   ws.onclose = () => {
@@ -67,16 +67,12 @@ function send(msg) {
 }
 
 function keyPressed() {
-  if (key === "1" || key === "2" || key === "3") {
+  if (key === "1" || key === "0") {
     ledState = int(key);
-    send(key);
-  }
-  if (key === "0") {
-    ledState = 0;
-    send("0");        // your Arduino code ignores "0", see note below
+    send("LED" + ledState); // need a keyword to signify LED messages, e.g. "LED1" or "L1" so Arduino can ignore sensor messages
   }
   if (key === " ") {
-    ledState = (ledState % 3) + 1;   // cycle 1 -> 2 -> 3 -> 1
+    ledState = 1 - ledState;   // cycle 1 -> 2 -> 3 -> 1
     send(String(ledState));
   }
 }
