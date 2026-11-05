@@ -4,7 +4,9 @@ let ws;
 let light1 = 0;          // raw reading, 0-4095
 let light2 = 0;          // raw reading, 0-4095
 let light3 = 0;          // raw reading, 0-4095
-let smooth = 0;         // smoothed value for drawing
+let smooth1 = 0;         // smoothed value for drawing
+let smooth2 = 0;         // smoothed value for drawing
+let smooth3 = 0;         // smoothed value for drawing
 let lightMin = 0;       // calibrate these from Serial Monitor
 let lightMax = 1000;
 let ledState = 0;       // 0 = off, 1/2/3 = which LED
@@ -43,11 +45,11 @@ function connect() {
 }
 
 function draw() {
-  smooth1 = lerp(smooth, light1, 0.1);   // ease out the jitter
-  smooth2 = lerp(smooth, light2, 0.1);
-  smooth3 = lerp(smooth, light3, 0.1);
+  smooth1 = lerp(smooth1, light1, 0.1);   // ease out the jitter
+  smooth2 = lerp(smooth2, light2, 0.1);
+  smooth3 = lerp(smooth3, light3, 0.1);
 
-  const t = constrain(map(smooth, lightMin, lightMax, 0, 1), 0, 1);
+  const t = constrain(map((smooth1 + smooth2 + smooth3) / 3, lightMin, lightMax, 0, 1), 0, 1);
 
   background(lerpColor(color(20), color(255, 240, 180), t));
 
