@@ -1,7 +1,9 @@
 const SERVER = "wss://h4p-websockets.onrender.com/";
 
 let ws;
-let light = 0;          // raw reading, 0-4095
+let light1 = 0;          // raw reading, 0-4095
+let light2 = 0;          // raw reading, 0-4095
+let light3 = 0;          // raw reading, 0-4095
 let smooth = 0;         // smoothed value for drawing
 let lightMin = 0;       // calibrate these from Serial Monitor
 let lightMax = 1000;
@@ -19,12 +21,18 @@ function connect() {
   ws.onopen = () => console.log("connected to " + SERVER);
 
   ws.onmessage = (event) => {
-    let msg = String(event.data).trim();
+    const msg = String(event.data).trim();
 
-    // only accept sensor lines like "L,2048"; ignore LED messages from others
-    if (msg.startsWith("L,")) {
-      let v = Number(msg.slice(2));
-      if (!isNaN(v)) light = v;
+    // only accept sensor lines like "L1,2048"; ignore LED messages from others
+    if (msg.startsWith("L1,")) {
+      const v = Number(msg.slice(3));
+      if (!Number.isNaN(v)) light1 = v;
+    } else if (msg.startsWith("L2,")) {
+      const v = Number(msg.slice(3));
+      if (!Number.isNaN(v)) light2 = v;
+    } else if (msg.startsWith("L3,")) {
+      const v = Number(msg.slice(3));
+      if (!Number.isNaN(v)) light3 = v;
     }
   };
 
@@ -35,9 +43,9 @@ function connect() {
 }
 
 function draw() {
-  smooth = lerp(smooth, light, 0.1);   // ease out the jitter
+  smooth = lerp(smooth, light1, 0.1);   // ease out the jitter
 
-  let t = constrain(map(smooth, lightMin, lightMax, 0, 1), 0, 1);
+  const t = constrain(map(smooth, lightMin, lightMax, 0, 1), 0, 1);
 
   background(lerpColor(color(20), color(255, 240, 180), t));
 
@@ -49,7 +57,7 @@ function draw() {
   // text
   fill(t > 0.5 ? 20 : 220);
   text(ws.readyState === 1 ? "connected" : "connecting...", 10, 20);
-  text("light: " + int(light), 10, 40);
+  text("light: " + int(smooth), 10, 40);
   text("press 1 / 2 / 3 = LED, 0 = off, space = cycle", 10, 60);
   text("LED: " + ledState, 10, 80);
 }

@@ -10,25 +10,23 @@
 #include <WiFi.h>
 #include <WebSocketsClient.h>
 #include <Wire.h>
-// #include <Adafruit_MPU6050.h>
-// #include <Adafruit_Sensor.h>
 
 // ---- settings -------------------------------------------------------------
 const char* WIFI_SSID = "gd-network-2g";
 const char* WIFI_PASS = "HeheheHahaha";
 
-// const char* SERVER_HOST = "192.168.8.220";   // laptop running server.js
-// const int   SERVER_PORT = 3000;
-const char* SERVER_HOST = "h4p-esp-sockets.onrender.com/";   // laptop running server.js
+const char* SERVER_HOST = "h4p-websockets.onrender.com";   // laptop running server.js
 const int   SERVER_PORT = 443;
 const bool USE_SSL = true;
 
-const int LED = D9;
+const int LED1 = D7;
+const int PHORE1 = A0;
+const int PHORE2 = A1;
+const int PHORE3 = A2;
 const unsigned long SEND_INTERVAL_MS = 50;    // 20 samples per second
 // ---------------------------------------------------------------------------
 
 WebSocketsClient ws;
-// Adafruit_MPU6050 mpu;
 unsigned long lastSend = 0;
 
 void onWsEvent(WStype_t type, uint8_t* payload, size_t length) {
@@ -42,8 +40,13 @@ void onWsEvent(WStype_t type, uint8_t* payload, size_t length) {
     case WStype_TEXT:
       // payload is not null-terminated, so look at the first byte only
       if (length > 0) {
-        if (payload[0] == '1') digitalWrite(LED, HIGH);
-        if (payload[0] == '0') digitalWrite(LED, LOW);
+        if (payload[0] == '1') {
+          digitalWrite(LED1, HIGH);
+        } else if (payload[0] == '0') {
+          digitalWrite(LED1, LOW);
+        } else if (payload[0] == ' ') {
+          digitalWrite(LED1, !digitalRead(LED1));
+        } 
       }
       break;
     default:
@@ -53,7 +56,10 @@ void onWsEvent(WStype_t type, uint8_t* payload, size_t length) {
 
 void setup() {
   Serial.begin(115200);
-  pinMode(LED, OUTPUT);
+  pinMode(LED1, OUTPUT);
+  // pinMode(PHORE1, OUTPUT);
+  // pinMode(LED3, OUTPUT);
+  analogReadResolution(12);   // 0-4095, the default on ESP32
 
   // --- sensor ---
   // Wire.begin();                           // D4 = SDA, D5 = SCL
@@ -73,16 +79,20 @@ void setup() {
   WiFi.begin(WIFI_SSID, WIFI_PASS);
   Serial.print("wifi");
   while (WiFi.status() != WL_CONNECTED) {
-    digitalWrite(LED, !digitalRead(LED));   // slow blink while connecting
+    digitalWrite(LED1, !digitalRead(LED1));   // slow blink while connecting
     delay(300);
     Serial.print(".");
   }
-  digitalWrite(LED, LOW);
+  digitalWrite(LED1, LOW);
   Serial.print(" connected, ip ");
   Serial.println(WiFi.localIP());
 
   // --- websocket ---
-  ws.begin(SERVER_HOST, SERVER_PORT, "/");
+  if (USE_SSL) {
+    ws.beginSSL(SERVER_HOST, SERVER_PORT, "/");   // wss:// (Render)
+  } else {
+    ws.begin(SERVER_HOST, SERVER_PORT, "/");      // ws://  (local)
+  }
   ws.onEvent(onWsEvent);
   ws.setReconnectInterval(2000);          // retry every 2 s if the server drops
 }
@@ -102,4 +112,25 @@ void loop() {
     //          g.gyro.x, g.gyro.y, g.gyro.z);
     // ws.sendTXT(line);
   // }
+
+  // ---- photoresistor ----
+  if (ws.isConnected() && millis() - lastSend >= SEND_INTERVAL_MS) {
+    lastSend = millis();
+
+    int light[3] = {
+      analogRead(PHORE1),
+      analogRead(PHORE2),
+      analogRead(PHORE3)
+    };
+
+    char line[16];
+    snprintf(line, sizeof(line), "L1,%d", light[0]);
+    ws.sendTXT(line);
+    snprintf(line, sizeof(line), "L2,%d", light[1]);
+    ws.sendTXT(line);
+    snprintf(line, sizeof(line), "L3,%d", light[2]);
+    ws.sendTXT(line);
+
+    Serial.printf("L1=%d L2=%d L3=%d\n", light[0], light[1], light[2]);
+  }
 }
