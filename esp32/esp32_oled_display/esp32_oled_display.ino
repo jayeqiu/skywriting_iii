@@ -51,6 +51,7 @@ unsigned long lastDisplayUpdate = 0;
 #define LOGO_HEIGHT   16
 #define LOGO_WIDTH    16
 
+const int LED = D7;
 int PHORE_0 = 0;
 int PHORE_1 = 0;
 int PHORE_2 = 0;
@@ -76,6 +77,7 @@ static const unsigned char PROGMEM logo_bmp[] =
 
 void setup() {
   Serial.begin(9600);
+  pinMode(LED, OUTPUT);
 
   // Wait for display
   delay(500);
@@ -114,19 +116,27 @@ void setup() {
   display.invertDisplay(false);
   delay(1000);
 
+  // --- wifi ---
   WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID, WIFI_PASS);
+  Serial.print("wifi");
   while (WiFi.status() != WL_CONNECTED) {
+    digitalWrite(LED, !digitalRead(LED));   // slow blink while connecting
     delay(300);
+    Serial.print(".");
   }
+  digitalWrite(LED, HIGH);
+  Serial.print(" connected, ip ");
+  Serial.println(WiFi.localIP());
 
+  // --- websocket ---
   if (USE_SSL) {
-    ws.beginSSL(SERVER_HOST, SERVER_PORT, "/");
+    ws.beginSSL(SERVER_HOST, SERVER_PORT, "/");   // wss:// (Render)
   } else {
-    ws.begin(SERVER_HOST, SERVER_PORT, "/");
+    ws.begin(SERVER_HOST, SERVER_PORT, "/");      // ws://  (local)
   }
   ws.onEvent(onWsEvent);
-  ws.setReconnectInterval(2000);
+  ws.setReconnectInterval(2000);          // retry every 2 s if the server drops
 }
 
 void testdrawlightsource() {
@@ -144,6 +154,8 @@ void testdrawlightsource() {
     display.println(PHORE_2);
     display.display();
     delay(2000);
+
+    Serial.printf("PHO0=%d PHO1=%d PHO2=%d\n", PHORE_0, PHORE_1, PHORE_2);
 }
 
 void onWsEvent(WStype_t type, uint8_t* payload, size_t length) {
