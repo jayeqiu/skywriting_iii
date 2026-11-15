@@ -47,9 +47,10 @@ function connect() {
 }
 
 function draw() {
-  r_smooth = lerp(r_smooth, r, 0.1);   // ease out the jitter
-  g_smooth = lerp(g_smooth, g, 0.1);
-  b_smooth = lerp(b_smooth, b, 0.1);
+  t = map(r + g + b, 0, 255 * 3, 0, 1);   // normalize to 0-1
+  r_smooth = lerp(r_smooth, r, t);   // ease out the jitter
+  g_smooth = lerp(g_smooth, g, t);
+  b_smooth = lerp(b_smooth, b, t);
 
   background(lerpColor(color(20), color(r_smooth, g_smooth, b_smooth), t));
 
