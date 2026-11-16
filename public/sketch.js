@@ -67,9 +67,9 @@ function draw() {
   fill(t > 0.5 ? 20 : 220);
   const status = ws.readyState !== 1 ? "connecting..." : hasSensorData ? "receiving sensor data" : "connected; waiting for sensor";
   text(status, 10, 20);
-  text("r: " + int(r_smooth), 10, 40);
-  text("g: " + int(g_smooth), 10, 60);
-  text("b: " + int(b_smooth), 10, 80);
+  text("r: " + int(r), 10, 40);
+  text("g: " + int(g), 10, 60);
+  text("b: " + int(b), 10, 80);
 }
 
 // function send(msg) {
