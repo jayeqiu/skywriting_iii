@@ -27,24 +27,54 @@ const MAX_LEN   = 250;    // the board's text buffer is 256 bytes
 // Readings that match nothing are reported in the console.
 const TEXTS = [
   // reds / pinks  (340-20)
-  { hue: [340, 20],  brightness: [0, 33],   text: "The sky holds its breath before dawn." },
-  { hue: [340, 20],  brightness: [33, 66],  text: "A low red sun leans on the hills." },
-  { hue: [340, 20],  brightness: [66, 100], text: "Everything the light touches burns a little." },
+  { hue: [340, 20],  brightness: [0, 33],   text: "It\’s hard to help blushing from the stressful task of writing a well-phrased journal entry at the conclusion of another strenuous day of idleness." },
+  { hue: [340, 20],  brightness: [33, 66],  text: "In spring it is the dawn that is most beautiful. As the light creeps over the hills, their outlines are dyed a faint red and wisps of purplish cloud trail over them." },
+  { hue: [340, 20],  brightness: [66, 100], text: "I wished that all this might indeed continue for a centillion years." },
+  { hue: [340, 20],  brightness: [33, 66], text: "The years have passed, And age has come my way. Yet I need only look at this fair flower For all my cares to melt away." },
   // oranges / yellows  (20-70)
-  { hue: [20, 70],   brightness: [0, 33],   text: "A lamp left on in a far window." },
-  { hue: [20, 70],   brightness: [33, 66],  text: "Amber afternoon; the hours slow down like honey." },
-  { hue: [20, 70],   brightness: [66, 100], text: "Noon: the sky says nothing, loudly." },
+  { hue: [20, 70],   brightness: [0, 33],   text: "May dawn bring you a voyage fair and far." },
+  { hue: [20, 70],   brightness: [33, 66],  text: "In autumn it is the evenings that are most beautiful, when the glittering sun sinks close to the edge of the hills and the crows fly back to their nests in threes and fours and twos." },
+  { hue: [20, 70],   brightness: [33, 66],  text: "I should like each of you to write down the first ancient poem that comes into your head." },
+  { hue: [20, 70],   brightness: [66, 100], text: "How can you be so indifferent to it all? I would like everyone to view." },
+  { hue: [20, 70],   brightness: [50, 100], text: "I was once wounded by the sharp edge of the silhouette of a skyscraper. I hid it in the smoky glow of dusk." },
   // greens  (70-160)
   { hue: [70, 160],  brightness: [33, 66],  text: "Light filtered through leaves, a quiet green sky." },
+  { hue: [70, 160],  brightness: [0, 66],  text: "The eternal silence of these infinite spaces, how frightening it must be for someone like you!" },
   // blues / cyans  (160-260)
-  { hue: [160, 260], brightness: [0, 33],   text: "Night comes in at the edges, blue on blue." },
-  { hue: [160, 260], brightness: [66, 100], text: "Clear air, clear water, nothing in between." },
-  { hue: [160, 260], brightness: [66, 100], text: "The wash of blue ocean answers the sky." },   // 2nd match: random pick
+  { hue: [160, 260], brightness: [0, 33],   text: "Fly where the sky is thin." },
+    { hue: [160, 260], brightness: [0, 50],   text: "It is a rainy day and one is feeling bored. To pass the time, one starts looking through some old papers. And then one comes across the letters of a man one used to love." },
+    { hue: [160, 260], brightness: [30, 100],   text: "What is a blue smile? A blue lie? A blue Valentine?" },
+  { hue: [160, 260], brightness: [66, 100], text: "Come! How long will your mind be chained to the earth? Do you see into what regions you have come?" },
+  { hue: [160, 260], brightness: [66, 100], text: "That which has no beginning has no end." },   // 2nd match: random pick
+    { hue: [160, 260], brightness: [66, 100], text: "Drips, streams, currents, torrents of air fret the wash of blue Ocean." },   // 2nd match: random pick
   // violets / magentas  (260-340)
   { hue: [260, 340], brightness: [33, 66],  text: "Dusk: the sky takes off its colours one by one." },
   // any hue
-  { hue: null,       brightness: [0, 10],   text: "Nearly dark. Perfect for a thought." },
-  { hue: null,       brightness: [80, 100], text: "White light: every colour at once, saying nothing." },
+  { hue: null,       brightness: [0, 10],   text: "The disgrace begins when a man writes not well, but badly." },
+  { hue: null,       brightness: [0, 10],   text: "The stars, round and spherical in form, complete their orbits and circles with marvelous swiftness. Words, spiky and quirky, spreads out slowly." },
+  { hue: null,       brightness: [0, 10],   text: "The stars: though scattered in crowds across the whole sky, share a constant diurnal motion." },
+  { hue: null,       brightness: [0, 10], text: "Things That Cannot Be Compared \nSummer and winter. Night and day. Rain and sunshine. Youth and age. A person’s laughter and his anger. Black and white. Love and hatred. The little indigo plant and the great philodendron. Rain and mist." },
+  { hue: null,       brightness: [0, 10],   text: "It is night and one is expecting a visitor. Suddenly one is startled by the sound of rain-drops, which the wind blows against the shutters." },
+  { hue: null,       brightness: [0, 10],   text: "In a garden full of evergreens the crows are all asleep. Then, towards the middle of the night, the crows in one of the trees suddenly wake up in a great flurry and start flapping about. Their unrest spreads to the other trees, and soon all the birds have been startled from their sleep and are cawing in alarm. How different from the same crows in daytime!" },
+  { hue: null,       brightness: [0, 20],   text: "Last year\’s paper fan. A night with a clear moon." },
+  { hue: null,       brightness: [0, 20],   text: "Swimming in the midnight breeze…" },
+  { hue: null,       brightness: [20, 50],   text: "But now it is growing light; there is a sound of people\’s voices, and it looks as if the sun will soon be up." },
+  { hue: null,       brightness: [20, 50],   text: "On the actual day of the festival the sky is usually cloudy." },
+  { hue: null,       brightness: [10, 80],   text: "When storm-petrels fly in a calm, clear sky, swept in troops before the coming winds, wild ducks, or gulls that flash the sea's light, stretch out their wings and make for shore, or a cloud that lies long on the hilltops." },
+  { hue: null,       brightness: [10, 80],   text: "If shooting stars clash from opposing directions, be on guard for winds that shift from all quarters, winds hard to predict, winds that blow far too erratic for human assessment." },
+  { hue: null,       brightness: [10, 80],   text: "May the stars in the sky preserve their appearance, for star-readers to enjoy during the swirly nights." },
+  { hue: null,       brightness: [30, 80],   text: "Beware of the juncture of months, eight nights when the sky is subtly deceptive, bereft of the glint of the bright-eyed moon." },
+  { hue: null,       brightness: [30, 80],   text: "A priest\’s language. The speech of men and of women. The common people always tend to add extra syllables to their words." },
+  { hue: null,       brightness: [30, 80],   text: "An inkstone with such a hard, smooth surface that the stick glides over it without leaving any deposit of ink." },
+  { hue: null,       brightness: [80, 100], text: "Up, up the long, delirious burning blue." },
+  { hue: null,       brightness: [80, 100], text: "The ray from your eyes. " },
+  { hue: null,       brightness: [80, 100], text: "Things That Cannot Be Compared \nSummer and winter. Night and day. Rain and sunshine. Youth and age. A person’s laughter and his anger. Black and white. Love and hatred. The little indigo plant and the great philodendron. Rain and mist." },
+  { hue: null,       brightness: [60, 80], text: "The upper air, the middle air, the lower air is blank." },
+  { hue: null,       brightness: [60, 80], text: "People standing near by were speculating about the contents of this message, but I was too far away to hear." },
+  { hue: null,       brightness: [50, 90], text: "I\’ll write something on the right, and leave the bottom blank." },
+  { hue: null,       brightness: [20, 50], text: "Sometimes a person who is utterly devoid of charm will try to create a good impression by using very elegant language; yet he only succeeds in being ridiculous." },
+  { hue: null,       brightness: [20, 50], text: "A good lover will behave as elegantly at dawn as at any other time.\nIndeed, one\’s attachment to a man depends largely on the elegance of his leave-taking." },
+
 ];
 
 let hsb = { hue: null, sat: 0, bri: 0 };
