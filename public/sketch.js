@@ -27,16 +27,19 @@ function connect() {
     const msg = String(event.data).trim();
     console.log("received: " + msg);
 
-    const sensorMessage = /^(r||g||b),?(\d+)$/.exec(msg);
+    const sensorMessage = /^([rgb]),?(\d+)$/.exec(msg);
     if (!sensorMessage) return;
 
-    const value = Number(sensorMessage[2]);
-    if (!Number.isFinite(value)) return;
+    const channel = sensorMessage[1];            // "r", "g" or "b"
+  const value = Number(sensorMessage[2]);      // the number
+  if (!Number.isFinite(value)) return;
 
-    switch (sensorMessage[0]) {
-      case "r": r = map(value, lightMin, lightMax, 0, 255); break;
-      case "g": g = map(value, lightMin, lightMax, 0, 255); break;
-      case "b": b = map(value, lightMin, lightMax, 0, 255); break;
+  const mapped = constrain(map(value, lightMin, lightMax, 0, 255), 0, 255);
+
+    switch (channel) {
+      case "r": r = mapped; break;
+      case "g": g = mapped; break;
+      case "b": b = mapped; break;
     }
     hasSensorData = true;
   };
