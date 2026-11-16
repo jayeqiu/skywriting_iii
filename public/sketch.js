@@ -10,8 +10,8 @@ let hasSensorData = false;
 // 614 ms integration: max count 65535. 50 ms integration: max count 21504.
 // Real readings are usually far below the max, so set lightMax near the
 // largest value you actually see.
-let lightMin = 0;
-let lightMax = 2000;
+const lightMin = 0;
+const lightMax = { r: 21504, g: 21504, b: 21504 };
 
 // ---------------- text selection ----------------
 const SAT_MIN   = 0.15;   // below this saturation the colour is greyish: hue = none
