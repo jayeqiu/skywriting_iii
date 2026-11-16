@@ -11,7 +11,7 @@ let hasSensorData = false;
 // Real readings are usually far below the max, so set lightMax near the
 // largest value you actually see.
 let lightMin = 0;
-let lightMax = 21504;
+let lightMax = 800;
 
 function setup() {
   createCanvas(400, 400);
