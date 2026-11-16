@@ -190,7 +190,13 @@ function connect() {
     const value = Number(m[2]);
     if (!Number.isFinite(value)) return;
 
-    const mapped = constrain(map(value, lightMin, lightMax[channel], 0, 255), 0, 255);
+    const maxForChannel = lightMax[channel];
+    const mapped = constrain(map(value, lightMin, maxForChannel, 0, 255), 0, 255);
+    if (!Number.isFinite(mapped)) {          // a NaN here would poison the smoothing forever
+      console.warn("bad mapping for " + channel + ": value " + value +
+                   ", lightMin " + lightMin + ", lightMax " + maxForChannel);
+      return;
+    }
 
     switch (channel) {
       case "r": rawR = value; r = mapped; break;
@@ -207,6 +213,14 @@ function connect() {
     hasSensorData = false;
     setTimeout(connect, 2000);
   };
+}
+
+// If a value ever becomes NaN or undefined, reset it to 0 and say which one,
+// instead of letting it poison the smoothing (lerp(NaN, x, k) is NaN forever).
+function finiteOr0(v, name) {
+  if (Number.isFinite(v)) return v;
+  console.warn(name + " was " + v + ", reset to 0");
+  return 0;
 }
 
 function draw() {
