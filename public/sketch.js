@@ -25,6 +25,7 @@ function connect() {
 
   ws.onmessage = (event) => {
     const msg = String(event.data).trim();
+    console.log("received: " + msg);
 
     const sensorMessage = /^(r||g||b),?(\d+)$/.exec(msg);
     if (!sensorMessage) return;
@@ -68,9 +69,9 @@ function draw() {
   text("b: " + int(b_smooth), 10, 80);
 }
 
-function send(msg) {
-  if (ws.readyState === 1) ws.send(msg);
-}
+// function send(msg) {
+//   if (ws.readyState === 1) ws.send(msg);
+// }
 
 // function keyPressed() {
 //   if (key === "1" || key === "0") {
