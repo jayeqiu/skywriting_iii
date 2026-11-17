@@ -25,7 +25,7 @@ const MAX_LEN   = 250;    // the board's text buffer is 256 bytes
 // brightness: [from, to] in percent, 0-100.
 // Several entries can match the same reading: one is picked at random.
 // Readings that match nothing are reported in the console.
-brightness = map(brightness, 0, 30, 0, 100);
+brightness *= 3;
 const TEXTS = [
   // reds / pinks  (340-20)
   { hue: [340, 20],  brightness: [0, 33],   text: "It\’s hard to help blushing from the stressful task of writing a well-phrased journal entry at the conclusion of another strenuous day of idleness." },
